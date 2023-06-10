@@ -1,13 +1,26 @@
-import { Module, Res } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import * as Joi from 'joi';
 import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
 import { DatabaseModule } from '@app/common';
 import { ReservationsRepository } from './reservations.repository';
 import { ReservationDocument, ReservationSchema } from './models/reservation.schema';
 import { LoggerModule } from '@app/common';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [DatabaseModule, DatabaseModule.forFeature([{ name: ReservationDocument.name, schema: ReservationSchema }]), LoggerModule],
+  imports: [
+    DatabaseModule, 
+    DatabaseModule.forFeature([{ name: ReservationDocument.name, schema: ReservationSchema }]), 
+    LoggerModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        MONGODB_URI: Joi.string().required(),
+        PORT: Joi.number().required(),
+      })
+    })
+  ],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationsRepository]
 })
